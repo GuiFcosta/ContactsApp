@@ -8,4 +8,5 @@ class Contact (
     var email: String,
     var phone: String,
     var birthday: Date?=null,
+    var picture : String? = null,
 ) : Serializable

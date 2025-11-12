@@ -21,10 +21,10 @@ class ContactsApp : Application() {
         super.onCreate()
 
         if (_contactsList.getContacts().isEmpty()) { // Adiciona contatos apenas se a lista estiver vazia
-            _contactsList.addContact(Contact("Ana Silva", "+351912345678", "ana.silva@email.com"))
-            _contactsList.addContact(Contact("Bruno Costa", "+351923456789", "bruno.costa@email.com"))
-            _contactsList.addContact(Contact("Carlos Dias", "+351934567890", "carlos.dias@email.com"))
-            _contactsList.addContact(Contact("Diana Melo", "+351965432109", "diana.melo@email.com"))
+            _contactsList.addContact(Contact("Ana Silva", "ana.silva@email.com", "+351912345678"))
+            _contactsList.addContact(Contact("Bruno Costa", "bruno.costa@email.com", "+351923456789"))
+            _contactsList.addContact(Contact("Carlos Dias", "carlos.dias@email.com", "+351934567890"))
+            _contactsList.addContact(Contact("Diana Melo", "diana.melo@email.com", "+351965432109"))
         }
     }
     fun saveData() {

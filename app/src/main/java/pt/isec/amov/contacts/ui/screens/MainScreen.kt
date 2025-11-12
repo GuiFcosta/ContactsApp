@@ -62,7 +62,7 @@ fun MainScreen(
                 actions = {
                     when (currentScreen?.destination?.route) {
                         "list" -> {
-                            IconButton(onClick = { }) {
+                            IconButton(onClick = { showExpanded = !showExpanded }) {
                                 Icon(
                                     Icons.AutoMirrored.Filled.List,
                                     contentDescription = "Expand/Collapse"
@@ -70,7 +70,10 @@ fun MainScreen(
                             }
 
                             IconButton(
-                                onClick = { navController.navigate("edit") }
+                                onClick = {
+                                    viewModel.createContact()
+                                    navController.navigate("edit")
+                                }
                             ) {
                                 Icon(
                                     Icons.Filled.Add,
@@ -93,7 +96,9 @@ fun MainScreen(
                         "edit" -> {
                             IconButton(
                                 onClick = {
-                                    navController.popBackStack("list", inclusive = false)
+                                    if (viewModel.saveContact()) {
+                                        navController.popBackStack("list", inclusive=false)
+                                    }
                                 }
                             ) {
                                 Icon(
@@ -128,7 +133,14 @@ fun MainScreen(
                     ShowScreen(contact = contact)
                 } ?: Text("No contact selected")
             }
-            composable("edit") { Text("Edit screen") }
+            composable("edit") {
+                EditScreen(
+                    name = viewModel.name,
+                    email = viewModel.email,
+                    phone = viewModel.phone,
+                    birthday = viewModel.birthdayDPState
+                )
+            }
 
         }
     }
