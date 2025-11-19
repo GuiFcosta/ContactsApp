@@ -138,7 +138,8 @@ fun MainScreen(
                     name = viewModel.name,
                     email = viewModel.email,
                     phone = viewModel.phone,
-                    birthday = viewModel.birthdayDPState
+                    birthday = viewModel.birthdayDPState,
+                    picture = viewModel.picture
                 )
             }
 

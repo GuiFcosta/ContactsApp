@@ -1,5 +1,8 @@
 package pt.isec.amov.contacts.ui.screens
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,15 +11,19 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
+import pt.isec.amov.contacts.ui.utils.FileUtils
 
 @Composable
 fun EditScreen(
@@ -24,10 +31,19 @@ fun EditScreen(
     email: MutableState<String>,
     phone: MutableState<String>,
     birthday: DatePickerState,
+    picture: MutableState<String?>,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
+    val pickImage = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia(),
+        onResult = { uri ->
+            picture.value = uri?.let {
+                FileUtils.createFileFromUri(context,it)
+            }
+        }
+    )
 
     Column(
         modifier = modifier
@@ -35,6 +51,28 @@ fun EditScreen(
             .verticalScroll(scrollState)
             .padding(16.dp),
     ) {
+        Spacer(Modifier.height(16.dp))
+        picture.value?.let { path ->
+            AsyncImage(
+                model = path,
+                contentDescription = "Contact's picture",
+                modifier = Modifier
+                    .fillMaxWidth(0.35f)
+                    .align(Alignment.CenterHorizontally)
+            )
+        } ?:
+        Button(
+            onClick = {
+                pickImage.launch(
+                PickVisualMediaRequest(
+                    ActivityResultContracts.PickVisualMedia.ImageOnly )) },
+            modifier = Modifier
+                .fillMaxWidth(0.35f)
+                .align(Alignment.CenterHorizontally)
+        ){
+            Text("+ Picture")
+        }
+        Spacer(Modifier.height(16.dp))
         OutlinedTextField(
             value = name.value,
             isError = name.value.isEmpty(),
