@@ -1,15 +1,24 @@
 package pt.isec.amov.contacts.ui.screens
 
+import android.app.Activity
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.provider.MediaStore
+import android.widget.ImageButton
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
@@ -20,10 +29,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat.requestPermissions
+import androidx.core.content.FileProvider
+import androidx.core.content.PermissionChecker
+import androidx.core.content.PermissionChecker.checkSelfPermission
 import coil3.compose.AsyncImage
 import pt.isec.amov.contacts.ui.utils.FileUtils
+import java.io.File
 
 @Composable
 fun EditScreen(
@@ -40,10 +56,19 @@ fun EditScreen(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { uri ->
             picture.value = uri?.let {
-                FileUtils.createFileFromUri(context,it)
+                FileUtils.createFileFromUri(context, it)
             }
         }
     )
+    val imagePath = FileUtils.getInternalFilename(context)
+    val fileUri = Uri.fromFile(File(imagePath))
+    val takePicture = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { activityResult ->
+        if (activityResult.resultCode == Activity.RESULT_OK) {
+            picture.value = FileUtils.copyFile(context, imagePath)
+        }
+    }
 
     Column(
         modifier = modifier
@@ -56,21 +81,33 @@ fun EditScreen(
             AsyncImage(
                 model = path,
                 contentDescription = "Contact's picture",
+                contentScale = ContentScale.FillBounds,
                 modifier = Modifier
                     .fillMaxWidth(0.35f)
                     .align(Alignment.CenterHorizontally)
+                    .clip(CircleShape)
+                    .aspectRatio(1f)
+                    .clickable{
+                        pickImage.launch(
+                            PickVisualMediaRequest(
+                                ActivityResultContracts.PickVisualMedia.ImageOnly
+                            )
+                        )
+                    }
             )
-        } ?:
-        Button(
+        } ?: Button(
             onClick = {
                 pickImage.launch(
-                PickVisualMediaRequest(
-                    ActivityResultContracts.PickVisualMedia.ImageOnly )) },
+                    PickVisualMediaRequest(
+                        ActivityResultContracts.PickVisualMedia.ImageOnly
+                    )
+                )
+            },
             modifier = Modifier
                 .fillMaxWidth(0.35f)
                 .align(Alignment.CenterHorizontally)
-        ){
-            Text("+ Picture")
+        ) {
+            Text("Add Picture")
         }
         Spacer(Modifier.height(16.dp))
         OutlinedTextField(

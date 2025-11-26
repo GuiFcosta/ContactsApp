@@ -1,6 +1,6 @@
 package pt.isec.amov.contacts.ui.screens
 
-import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,6 +30,7 @@ fun ShowScreen(
 ) {
     val dateFormatter = SimpleDateFormat("yyyy.MM.dd", Locale.getDefault())
     Column(
+        verticalArrangement = Arrangement.SpaceEvenly,
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp)
@@ -42,7 +43,6 @@ fun ShowScreen(
                 .fillMaxWidth(0.35f)
                 .aspectRatio(1f)
                 .clip(CircleShape)
-                //.border(6.dp, androidx.compose.ui.graphics.Color.Black, CircleShape)
                 .align(Alignment.CenterHorizontally)
         )
         Text(

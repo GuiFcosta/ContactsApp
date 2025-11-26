@@ -10,27 +10,27 @@ class FileUtils {
     companion object {
         fun getTempFilename(
             context: Context,
-            prefix : String = "image",
-            suffix : String = ".img"
-        ) : String = File.createTempFile(
+            prefix: String = "image",
+            suffix: String = ".img"
+        ): String = File.createTempFile(
             prefix, suffix,
             context.externalCacheDir
         ).absolutePath
 
         fun getInternalFilename(
             context: Context,
-            prefix : String = "image",
-            suffix : String = ".img"
-        ) : String = File.createTempFile(
+            prefix: String = "image",
+            suffix: String = ".img"
+        ): String = File.createTempFile(
             prefix, suffix,
             context.filesDir
         ).absolutePath
 
         fun createFileFromUri(
             context: Context,
-            uri : Uri,
-            filename : String = getInternalFilename(context)
-        ) : String {
+            uri: Uri,
+            filename: String = getInternalFilename(context)
+        ): String {
             FileOutputStream(filename).use { outputStream ->
                 context.contentResolver.openInputStream(uri)?.use { inputStream ->
                     inputStream.copyTo(outputStream)
@@ -38,10 +38,11 @@ class FileUtils {
             }
             return filename
         }
+
         fun copyFile(
-            originalPath : String,
-            newFilename : String
-        ) : String {
+            originalPath: String,
+            newFilename: String
+        ): String {
             FileOutputStream(newFilename).use { outputStream ->
                 FileInputStream(originalPath).use { inputStream ->
                     inputStream.copyTo(outputStream)
@@ -49,11 +50,12 @@ class FileUtils {
             }
             return newFilename
         }
+
         fun copyFile(
             context: Context,
-            originalPath : String,
-            newFilename : String = getInternalFilename(context)
-        ) : String {
+            originalPath: String,
+            newFilename: String = getInternalFilename(context)
+        ): String {
             FileOutputStream(newFilename).use { outputStream ->
                 FileInputStream(originalPath).use { inputStream ->
                     inputStream.copyTo(outputStream)
