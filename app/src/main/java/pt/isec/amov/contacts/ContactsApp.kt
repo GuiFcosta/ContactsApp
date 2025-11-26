@@ -1,8 +1,11 @@
 package pt.isec.amov.contacts
 
 import android.app.Application
+import com.google.android.gms.location.LocationServices
 import pt.isec.amov.contacts.model.Contact
 import pt.isec.amov.contacts.model.ContactsList
+import pt.isec.amov.contacts.ui.utils.location.LocationHandler
+import pt.isec.amov.contacts.ui.utils.location.FusedLocationHandler
 
 class ContactsApp : Application() {
     companion object {
@@ -16,6 +19,12 @@ class ContactsApp : Application() {
         } ?: ContactsList()
     }
     val contactsList get() = _contactsList
+
+    val locationHandler : LocationHandler by lazy {
+        val locationProvider = LocationServices
+            .getFusedLocationProviderClient(this)
+        FusedLocationHandler(locationProvider)
+    }
 
     override fun onCreate(){
         super.onCreate()

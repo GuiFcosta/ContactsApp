@@ -18,7 +18,7 @@ import pt.isec.amov.contacts.ui.viewmodels.ContactsViewModelFactory
 class MainActivity : ComponentActivity() {
     private val app by lazy { application as ContactsApp }
     private val viewModel: ContactsViewModel
-            by viewModels { ContactsViewModelFactory(app.contactsList) }
+            by viewModels { ContactsViewModelFactory(app.contactsList, app.locationHandler) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -1,15 +1,19 @@
 package pt.isec.amov.contacts.ui.viewmodels
 
+import android.location.Location
 import androidx.compose.material3.DatePickerState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import pt.isec.amov.contacts.model.Contact
 import pt.isec.amov.contacts.model.ContactsList
+import pt.isec.amov.contacts.ui.utils.location.FusedLocationHandler
+import pt.isec.amov.contacts.ui.utils.location.LocationHandler
 import java.util.Date
 import java.util.Locale
 
 class ContactsViewModel(
-    val contactsList: ContactsList
+    val contactsList: ContactsList,
+    private val locationHandler: LocationHandler
 ) : ViewModel() {
     var currentContact: Contact? = null
     val picture = mutableStateOf<String?>(null)
@@ -36,7 +40,7 @@ class ContactsViewModel(
         birthdayDPState.selectedDateMillis = contact.birthday?.time ?: 0
     }
 
-    fun saveContact() : Boolean {
+    fun saveContact(): Boolean {
         if (name.value.isEmpty() || email.value.isEmpty() || phone.value.isEmpty()) {
             return false
         }
@@ -56,5 +60,33 @@ class ContactsViewModel(
             )
         )
         return true
+    }
+
+    var hasLocationPermission: Boolean = false
+    private val currentLocation = mutableStateOf(Location(null))
+
+    init {
+        locationHandler.onLocation = { location ->
+            currentLocation.value = location
+        }
+    }
+
+    fun startLocationUpdates() {
+        if (hasLocationPermission)
+            locationHandler.startLocationUpdates()
+    }
+
+    fun stopLocationUpdates() {
+        locationHandler.stopLocationUpdates()
+    }
+
+    fun storeCurrentLocation() {
+        if (!hasLocationPermission || currentContact == null)
+            return
+        currentContact!!.addMeetingPoint(
+            currentLocation.value.latitude,
+            currentLocation.value.longitude,
+            Date()
+        )
     }
 }

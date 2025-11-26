@@ -1,5 +1,6 @@
 package pt.isec.amov.contacts.ui.screens
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -27,6 +28,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -60,15 +62,30 @@ fun EditScreen(
             }
         }
     )
-    val imagePath = FileUtils.getInternalFilename(context)
-    val fileUri = Uri.fromFile(File(imagePath))
-    val takePicture = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { activityResult ->
-        if (activityResult.resultCode == Activity.RESULT_OK) {
-            picture.value = FileUtils.copyFile(context, imagePath)
-        }
+    val imagePath = remember {FileUtils.getTempFilename(context)}
+    val fileUri = remember {
+        FileProvider.getUriForFile(
+            context,
+            "pt.isec.amov.contacts.android.fileprovider",
+            File(imagePath)
+        )
     }
+    val takePicture = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture(),
+        onResult = { success ->
+            if (success) {
+                picture.value = FileUtils.copyFile(context, imagePath)
+            }
+        }
+    )
+    val requestCameraPermission = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (isGranted) {
+                takePicture.launch(fileUri)
+            }
+        }
+    )
 
     Column(
         modifier = modifier
@@ -87,7 +104,7 @@ fun EditScreen(
                     .align(Alignment.CenterHorizontally)
                     .clip(CircleShape)
                     .aspectRatio(1f)
-                    .clickable{
+                    .clickable {
                         pickImage.launch(
                             PickVisualMediaRequest(
                                 ActivityResultContracts.PickVisualMedia.ImageOnly
@@ -97,11 +114,14 @@ fun EditScreen(
             )
         } ?: Button(
             onClick = {
-                pickImage.launch(
-                    PickVisualMediaRequest(
-                        ActivityResultContracts.PickVisualMedia.ImageOnly
-                    )
-                )
+                when (PackageManager.PERMISSION_GRANTED) {
+                    checkSelfPermission(context, Manifest.permission.CAMERA) -> {
+                        takePicture.launch(fileUri)
+                    }
+                    else -> {
+                        requestCameraPermission.launch(Manifest.permission.CAMERA)
+                    }
+                }
             },
             modifier = Modifier
                 .fillMaxWidth(0.35f)
